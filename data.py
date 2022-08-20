@@ -4,7 +4,7 @@ import pandas as pd
 from datetime import datetime, date, timedelta
 from bs4 import BeautifulSoup
 
-from constants import HEADERS, DATE_QSTRING_REFERENCE, YFINANCE_TIMEOUT, YFINANCE_URL
+from utility.constants import HEADERS, DATE_QSTRING_REFERENCE, YFINANCE_TIMEOUT, YFINANCE_URL
 
 # For Yahoo Finance
 def format_expiry_qstring(expiry: date) -> int:
@@ -78,5 +78,5 @@ def get_options_chain_expiries(ticker: str='SPY') -> list[datetime]:
 if __name__ == '__main__':
     expiries = get_options_chain_expiries()
     #print(expiries[0])
-    print(get_options_chain_data(expiries[0])[0]['Quote'])
+    print(get_options_chain_data(expiries[0])[0].iloc[20])
     #print(get_options_chain_data_batch(expiries))
