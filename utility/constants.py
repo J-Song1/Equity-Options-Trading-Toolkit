@@ -35,6 +35,9 @@ CBOE_HOLIDAYS = [
     date(2022, 11, 25), # Thanksgiving Early Close
     date(2022, 12, 26), # Christmas Day Observed
 ]
+CALENDAR_DAYS_IN_YEAR = 365
+TRADING_DAYS_IN_YEAR = CALENDAR_DAYS_IN_YEAR - 0 # TODO: Find Out
 
 # Interest Rates
 US_RATES_URL = 'http://www.worldgovernmentbonds.com/country/united-states/'
+
