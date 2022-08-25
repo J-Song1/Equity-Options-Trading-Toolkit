@@ -34,6 +34,11 @@ class NakedLongPut(Strategy): # Bearish
         if x_max is None: x_max = self.long_put.strike + 10
         assert x_min < self.long_put.strike and x_max > self.long_put.strike
 
+class NakedLongEquity(Strategy):
+    def __init__(self, long_equity):
+        pass
+
+
 def debug():
     """
     #x = NakedLongCall(CallOption('SPY', 400, None, 10))

@@ -1,0 +1,28 @@
+# Strategies
+
+- Call Spreads
+    - Call Debit Spread
+    - Call Credit Spread
+- Put Spreads
+    - Put Debit Spread
+    - Put Credit Spread
+- Naked Longs
+    - Naked Long Call
+    - Naked Long Put
+    - Naked Long Equity
+- Naked Shorts
+    - Naked Short Call
+    - Naked Short Put
+    - Naked Short Equity
+- Straddle
+    - Long Straddle
+    - Short Straddle
+- Strangle
+    - Long Strangle
+    - Short Strangle
+- Iron Condors
+    - Long Iron Condor
+    - Short Iron Condor
+- Iron Butterflies
+    - Long Iron Butterfly
+    - Short Iron Butterfly

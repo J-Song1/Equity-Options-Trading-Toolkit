@@ -35,3 +35,15 @@ class Strategy:
         plt.title(self.title)
         plt.ylabel('P&L')
         plt.show()
+
+    def plot_delta_exposure(self):
+        pass
+
+    def plot_gamma_exposure(self):
+        pass
+
+    def plot_vega_exposure(self):
+        pass
+
+    def plot_theta_exposure(self):
+        pass
