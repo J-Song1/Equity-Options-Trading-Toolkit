@@ -18,6 +18,7 @@ class EquityOption:
         strike: float, 
         expiry: datetime, 
         price: float, 
+        implied_vol: float,
         volume: int=None, 
         open_interest: int=None
         ):
@@ -28,65 +29,68 @@ class EquityOption:
         self.price = price
         self.volume = volume
         self.open_interest = open_interest
-        self.implied_volatility = None
+        self.implied_vol = implied_vol
 
-    def get_years_to_expiry(self, now: datetime) -> float:
-        return (self.expiry - now) / timedelta(CALENDAR_DAYS_IN_YEAR) # TODO: Adjust for "Trading Days" Only
+    def get_years_to_expiry(self) -> float:
+        return (self.expiry - datetime.now()) / timedelta(CALENDAR_DAYS_IN_YEAR) # TODO: Adjust for "Trading Days" Only
 
-    def get_d1(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
+    def get_spot(self):
+        return 385.29
+
+    def get_d1(self):
+        years_to_expiry = self.get_years_to_expiry()
         risk_free_rate = get_risk_free_rate(years_to_expiry)
 
-        numerator = log(spot / self.strike) + (risk_free_rate + pow(implied_volatility, 2) / 2) * years_to_expiry
-        denominator = implied_volatility * sqrt(years_to_expiry)
+        numerator = log(self.get_spot() / self.strike) + (risk_free_rate + pow(self.implied_vol, 2) / 2) * years_to_expiry
+        denominator = self.implied_vol * sqrt(years_to_expiry)
         d1 = numerator / denominator
         return d1
 
-    def get_d2(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
-        d2 = self.get_d1(spot, now, implied_volatility) - implied_volatility * sqrt(years_to_expiry)
+    def get_d2(self):
+        years_to_expiry = self.get_years_to_expiry()
+        d2 = self.get_d1() - self.implied_vol * sqrt(years_to_expiry)
         return d2
 
     def get_price(self):
-        pass
+        return self.price
 
-    def get_delta(self, spot: float, now: datetime, implied_volatility: float):
-        delta = norm.cdf(self.get_d1(spot, now, implied_volatility))
+    def get_delta(self):
+        delta = norm.cdf(self.get_d1())
         return delta
 
-    def get_gamma(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
+    def get_gamma(self):
+        years_to_expiry = self.get_years_to_expiry()
 
-        numerator = norm.pdf(self.get_d1(spot, now, implied_volatility))
-        denominator = spot * implied_volatility * sqrt(years_to_expiry)
+        numerator = norm.pdf(self.get_d1())
+        denominator = self.get_spot() * self.implied_vol * sqrt(years_to_expiry)
         gamma = numerator / denominator
         return gamma
 
-    def get_vega(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
+    def get_vega(self):
+        years_to_expiry = self.get_years_to_expiry()
 
-        vega = spot * norm.pdf(self.get_d1(spot, now, implied_volatility)) * sqrt(years_to_expiry) / 100.0
+        vega = self.get_spot() * norm.pdf(self.get_d1()) * sqrt(years_to_expiry) / 100.0
         return vega
     
-    def get_theta(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
+    def get_theta(self):
+        years_to_expiry = self.get_years_to_expiry()
         risk_free_rate = get_risk_free_rate(years_to_expiry)
 
-        numerator = -spot * norm.pdf(self.get_d1(spot, now, implied_volatility)) * implied_volatility
+        numerator = -self.get_spot() * norm.pdf(self.get_d1()) * self.implied_vol
         denominator = 2 * sqrt(years_to_expiry)
         term1 = numerator / denominator
         term2 = -risk_free_rate * self.strike * exp(-risk_free_rate * years_to_expiry) \
-            * norm.cdf(self.get_d2(spot, now, implied_volatility))
+            * norm.cdf(self.get_d2())
 
         theta = (term1 + term2) / CALENDAR_DAYS_IN_YEAR
         return theta 
 
-    def get_rho(self, spot: float, now: datetime, implied_volatility: float):
-        years_to_expiry = self.get_years_to_expiry(now)
+    def get_rho(self):
+        years_to_expiry = self.get_years_to_expiry()
         risk_free_rate = get_risk_free_rate(years_to_expiry)
 
         rho = self.strike * years_to_expiry * exp(-risk_free_rate * years_to_expiry) \
-            * norm.cdf(self.get_d2(spot, now, implied_volatility))
+            * norm.cdf(self.get_d2())
         return rho / 100.0
 
     # Numerical Method to Calcualte Implied Volatility, Given Price
@@ -94,26 +98,25 @@ class EquityOption:
         if self.implied_volatility is not None: return
 
 class CallOption(EquityOption):
-    def __init__(self, underlying: str, strike: float, expiry: datetime, price: float):
-        super().__init__(underlying, strike, expiry, price)
+    def __init__(self, underlying: str, strike: float, expiry: datetime, price: float, implied_vol: float):
+        super().__init__(underlying, strike, expiry, price, implied_vol)
 
 class PutOption(EquityOption):
-    def __init__(self, underlying: str, strike: float, expiry: datetime, price: float):
-        super().__init__(underlying, strike, expiry, price)
+    def __init__(self, underlying: str, strike: float, expiry: datetime, price: float, implied_vol: float):
+        super().__init__(underlying, strike, expiry, price, implied_vol)
 
 def series_to_option(series: pd.Series) -> EquityOption:
     print(series)
     underlying = 'SPY'
     strike = series['Strike']
-    expiry = datetime.strptime(series['Expiry'], '%Y-%m-%d %H:%M:%S')
+    expiry = datetime.strptime(series['Expiry'], '%Y-%m-%d')
     price = series['Last Price']
+    implied_vol = series['Implied Volatility']
 
-    call = CallOption(underlying, strike, expiry, price)
-    print('Delta', call.get_delta(385.56, datetime.now(), series['Implied Volatility']))
-    print('Gamma', call.get_gamma(385.56, datetime.now(), series['Implied Volatility']))
-    print('Theta', call.get_theta(385.56, datetime.now(), series['Implied Volatility']))
-    print('Vega', call.get_vega(385.56, datetime.now(), series['Implied Volatility']))
-    print('Rho', call.get_rho(385.56, datetime.now(), series['Implied Volatility']))
+    spot = 385.56
+
+    call = CallOption(underlying, strike, expiry, price, implied_vol)
+    return call
 
 if __name__ == '__main__':
     df = pd.read_csv('resources/SPY_Calls.csv')

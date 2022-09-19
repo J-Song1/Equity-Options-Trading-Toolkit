@@ -12,10 +12,41 @@ import matplotlib.ticker as mtick
 from scipy.interpolate import CubicSpline # TODO: Look into actual yield-curve interpolation methods
 
 from bs4 import BeautifulSoup
-from constants import US_RATES_URL, HEADERS, TIMEOUT
+from utility.constants import US_RATES_URL, HEADERS, TIMEOUT
 
 # TODO: Add Caching
 def get_us_treasury_rates(verbose=False):
+    # Constant Data for Testing
+    YEARS = [
+        1/12,
+        2/12,
+        3/12,
+        6/12,
+        1,
+        2,
+        3,
+        5,
+        7,
+        10,
+        20,
+        30,
+    ]
+    YIELDS = [
+        0.02641,
+        0.02948,
+        0.03177,
+        0.03811,
+        0.03983,
+        0.03873,
+        0.03832,
+        0.03636,
+        0.03568,
+        0.03451,
+        0.03789,
+        0.03518,
+    ]
+    return YEARS, YIELDS
+
     response = requests.get(
         url=US_RATES_URL,
         headers=HEADERS,
@@ -38,7 +69,7 @@ def get_us_treasury_rates(verbose=False):
 
         plt.show()
 
-    return us_rates_df
+    return us_rates_df['Years'], (us_rates_df['Yield'])
 
 def get_risk_free_rate(maturity, region='us'):
     """
@@ -46,7 +77,7 @@ def get_risk_free_rate(maturity, region='us'):
     """
     assert region in ['us'] and 0 <= maturity
 
-    maturities, rates = zip(*US_RATES)
+    maturities, rates = get_us_treasury_rates()
     # maturity_range = np.linspace(0, 30, 360)
 
     yield_curve_cs = CubicSpline(maturities, rates)

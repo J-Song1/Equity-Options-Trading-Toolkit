@@ -8,7 +8,7 @@ class Strategy:
         self.net_premium = net_premium
         self.premium_type = 'credit' if net_premium > 0 else 'debit'
 
-    def _show_plot(self, payoff: list[tuple[float, float]]):
+    def _show_plot(self, payoff: list[tuple[float, float]], save_path='tmp.jpg'):
         xs, ys = zip(*payoff)
 
         # Setting Seaborn Globals
@@ -34,16 +34,27 @@ class Strategy:
         )
         plt.title(self.title)
         plt.ylabel('P&L')
-        plt.show()
+        plt.savefig(save_path)
+        plt.clf()
+        #plt.show()
+        return save_path
 
-    def plot_delta_exposure(self):
-        pass
+    _ERROR_MSG = "is a virtual method in class Strategy"
 
-    def plot_gamma_exposure(self):
-        pass
+    def get_price(self):
+        raise NotImplementedError(f"get_price {self._ERROR_MSG}")
 
-    def plot_vega_exposure(self):
-        pass
+    def get_delta(self):
+        raise NotImplementedError(f"get_net_delta_exposure {self._ERROR_MSG}")
 
-    def plot_theta_exposure(self):
-        pass
+    def get_gamma(self):
+        raise NotImplementedError(f"get_net_gamma_exposure {self._ERROR_MSG}")
+
+    def get_theta(self):
+        raise NotImplementedError(f"get_net_theta_exposure {self._ERROR_MSG}")
+
+    def get_vega(self):
+        raise NotImplementedError(f"get_net_vega_exposure {self._ERROR_MSG}")
+
+    def get_rho(self):
+        raise NotImplementedError(f"get_net_rho_exposure {self._ERROR_MSG}")
