@@ -1,4 +1,4 @@
-# Options Strategies Market Making / Liquidity Creation
+# Equity Options Strategies Trading Toolkit
 
 ## Example Usage
 
